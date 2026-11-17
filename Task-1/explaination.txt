@@ -1,0 +1,128 @@
+// step 1: import required modules: 
+import fs from "node:fs/promises";
+import path from "node:path";
+=> we are importing two built-in Node.js modules. 
+module          Purpose
+fs               Works with files and folders
+path             works with file and folder paths.
+
+// step 2: Get the current folder path: 
+const folderPath = import.meta.dirname;
+=> import.meta.dirname gives the directory path of the current js file. 
+this means report.js is located inside the test-folder directory. 
+
+** Important difference: 
+const folderPath = import.meta.dirname;  // reads the current folder.
+BUT: 
+const folderPath = path.join(import.meta.dirname, "test-folder");
+==> looks for another test-folder inside the current folder. 
+
+// step 3: Read all files: 
+const files = await fs.readdir(folderPath);
+// fs.readdir() reads the contents of a directory. it returns an array containing the names of files and directories.
+suppose your folder contains: 
+report.js
+index.js
+style.css
+photo.png
+data.txt
+
+then the files array will look like: 
+[
+  "report.js",
+  "index.js",
+  "style.css",
+  "photo.png",
+  "data.txt"
+]
+
+// why do we use await ? 
+=> Because reading a directory is an asynchronous operation. We use await to wait until NODE.JS finishes reading the directory. 
+
+// Step 4: Count total files: 
+console.log(`Total files: ${files.length}\n`);
+
+// step 5: Use a for..of loop :
+ for (const file of files) {
+
+}
+==> The for...of loop processes each item of an array one by one.
+
+// Step 6: Get the file extension
+const extension = path.extname(file);
+==> path.extname() extracts the extension from a filename. 
+
+// Step 7: Build the full file path
+const fullPath = path.join(folderPath, file);
+
+
+English explanation:
+
+We already have two values:
+folderPath = "C:/NodeExpress/test-folder";
+
+file = "index.js";
+
+We need to combine them.
+
+path.join() creates the complete path.
+
+Result:
+C:\NodeExpress\test-folder\index.js
+
+** Why is this necessary?
+=> Because fs.stat() needs the correct file path to find information about a particular file. 
+
+// Step 8: Get file information: 
+
+const stats = await fs.stat(fullPath);
+
+English explanation:
+
+fs.stat() gives information about a file or directory.
+
+For example:
+stats.size   ----> file size in Bytes.
+stats.isFile() ---> Checks whether it is a file. 
+stats.isDirectory() ---> Checks whether it is a Directory. 
+stats.mtime  ---> Last modified date
+stats.birthtime  ---> Creation date  
+
+// IMPORTANT: 
+if (!stats.isFile()) {
+  continue;
+} 
+==> the skips directories 
+agar any item file nahi hoke folder hota hai , then usko chorke loop next item se jayega 
+
+// Step 9. Convert BYTES into KB: 
+const sizeInKB = (stats.size / 1024).toFixed(2);
+
+==> The stats.size property returns file size in Bytes.
+
+
+Example:
+
+Suppose:
+stats.size = 5120;
+Calculation:
+
+5120 \ 1024 = 5 KB
+
+So:
+const sizeInKB = (stats.size / 1024).toFixed(2);
+
+Output:
+5.00
+
+** What is toFixed(2)?
+It displays two digits after the decimal point.
+
+Ex:
+(5).toFixed(2);       // "5.00"
+(5.256).toFixed(2);   // "5.26"
+
+// Step 10: Display the report
+We use console.log() to display the file information.
+
+${variable} is called string interpolation. It allows us to insert variable values inside a template literal.
